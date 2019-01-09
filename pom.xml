@@ -20,6 +20,35 @@
 		]]>
 	</description>
 
+	<licenses>
+		<license>
+			<name>Apache License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<id>marcosbarbero</id>
+			<email>marcos.hgb@gmail.com</email>
+			<name>Marcos Barbero</name>
+			<timezone>Europe/Amsterdam</timezone>
+			<roles>
+				<role>Project Lead</role>
+			</roles>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:git:https://github.com/marcosbarbero/spring-boot-n-cloud-playground.git</connection>
+		<developerConnection>
+			scm:git:git@github.com:marcosbarbero/spring-boot-n-cloud-playground.git
+		</developerConnection>
+		<url>https://github.com/marcosbarbero/spring-boot-n-cloud-playground</url>
+		<tag>HEAD</tag>
+	</scm>
+
 	<properties>
 		<java.version>1.8</java.version>
 		<spring-cloud.version>Finchley.SR2</spring-cloud.version>
@@ -37,6 +66,12 @@
 		</dependencies>
 	</dependencyManagement>
 
+	<modules>
+		<!-- Security Modules -->
+		<module>security/oauth2-jwt-server</module>
+		<module>security/oauth2-opaque-server</module>
+	</modules>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -49,12 +84,6 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
-	<modules>
-		<!-- Security Modules -->
-		<module>security/oauth2-jwt-server</module>
-		<module>security/oauth2-opaque-server</module>
-	</modules>
 
 	<build>
 		<plugins>
