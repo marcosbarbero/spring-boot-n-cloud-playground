@@ -16,7 +16,7 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
 
     private final TokenStore tokenStore;
 
-    public ResourceServerConfiguration(TokenStore tokenStore) {
+    public ResourceServerConfiguration(final TokenStore tokenStore) {
         this.tokenStore = tokenStore;
     }
 
