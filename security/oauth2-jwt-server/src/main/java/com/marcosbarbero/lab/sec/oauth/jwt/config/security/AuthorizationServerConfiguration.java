@@ -27,21 +27,23 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     private final DataSource dataSource;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final SecurityProperties securityProperties;
 
     private JwtAccessTokenConverter jwtAccessTokenConverter;
     private TokenStore tokenStore;
 
     public AuthorizationServerConfiguration(final DataSource dataSource, final PasswordEncoder passwordEncoder,
-                                            final AuthenticationManager authenticationManager) {
+                                            final AuthenticationManager authenticationManager, final SecurityProperties securityProperties) {
         this.dataSource = dataSource;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
+        this.securityProperties = securityProperties;
     }
 
     @Bean
-    public TokenStore tokenStore(final JwtAccessTokenConverter jwtAccessTokenConverter) {
+    public TokenStore tokenStore() {
         if (tokenStore == null) {
-            tokenStore = new JwtTokenStore(jwtAccessTokenConverter);
+            tokenStore = new JwtTokenStore(jwtAccessTokenConverter());
         }
         return tokenStore;
     }
@@ -58,7 +60,7 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     }
 
     @Bean
-    public JwtAccessTokenConverter jwtAccessTokenConverter(final SecurityProperties securityProperties) {
+    public JwtAccessTokenConverter jwtAccessTokenConverter() {
         if (jwtAccessTokenConverter != null) {
             return jwtAccessTokenConverter;
         }
@@ -79,8 +81,8 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     @Override
     public void configure(final AuthorizationServerEndpointsConfigurer endpoints) {
         endpoints.authenticationManager(this.authenticationManager)
-                .accessTokenConverter(this.jwtAccessTokenConverter)
-                .tokenStore(this.tokenStore);
+                .accessTokenConverter(jwtAccessTokenConverter())
+                .tokenStore(tokenStore());
     }
 
     @Override
@@ -94,7 +96,6 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     }
 
     private KeyStoreKeyFactory keyStoreKeyFactory(SecurityProperties.JwtProperties jwtProperties) {
-        return new KeyStoreKeyFactory(
-                jwtProperties.getKeyStore(), jwtProperties.getKeyStorePassword().toCharArray());
+        return new KeyStoreKeyFactory(jwtProperties.getKeyStore(), jwtProperties.getKeyStorePassword().toCharArray());
     }
 }
