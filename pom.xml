@@ -70,6 +70,7 @@
 		<!-- Security Modules -->
 		<module>security/oauth2-jwt-server</module>
 		<module>security/oauth2-opaque-server</module>
+		<module>security/downstream-service-jwt</module>
 	</modules>
 
 	<dependencies>
@@ -90,9 +91,6 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<configuration>
-					<addResources>true</addResources>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>

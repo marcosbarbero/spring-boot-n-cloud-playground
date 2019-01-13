@@ -1,0 +1,6 @@
+server:
+  port: 9001
+
+security:
+  jwt:
+    public-key: classpath:public.txt

@@ -1,0 +1,6 @@
+/Users/marcosbarbero/dev/github/spring-boot-n-cloud-playground/security/oauth2-jwt-server/src/main/java/com/marcosbarbero/lab/sec/oauth/jwt/config/props/SecurityProperties.java
+/Users/marcosbarbero/dev/github/spring-boot-n-cloud-playground/security/oauth2-jwt-server/src/main/java/com/marcosbarbero/lab/sec/oauth/jwt/OAuthServerJwtApplication.java
+/Users/marcosbarbero/dev/github/spring-boot-n-cloud-playground/security/oauth2-jwt-server/src/main/java/com/marcosbarbero/lab/sec/oauth/jwt/config/security/ResourceServerConfiguration.java
+/Users/marcosbarbero/dev/github/spring-boot-n-cloud-playground/security/oauth2-jwt-server/src/main/java/com/marcosbarbero/lab/sec/oauth/jwt/config/security/AuthorizationServerConfiguration.java
+/Users/marcosbarbero/dev/github/spring-boot-n-cloud-playground/security/oauth2-jwt-server/src/main/java/com/marcosbarbero/lab/sec/oauth/jwt/config/security/WebSecurityConfiguration.java
+/Users/marcosbarbero/dev/github/spring-boot-n-cloud-playground/security/oauth2-jwt-server/src/main/java/com/marcosbarbero/lab/sec/oauth/jwt/web/UserController.java
