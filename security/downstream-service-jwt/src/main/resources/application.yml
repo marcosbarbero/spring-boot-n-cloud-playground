@@ -1,6 +1,19 @@
 server:
-  port: 9001
+  port: 9100
 
 security:
   jwt:
     public-key: classpath:public.txt
+  oauth2:
+    resource:
+      jwk:
+        key-set-uri: http://localhost:9000/jwk/public
+
+
+#spring:
+#  security:
+#    oauth2:
+#      resourceserver:
+#        jw
+#
+#          jwk-set-uri: http://localhost:9000

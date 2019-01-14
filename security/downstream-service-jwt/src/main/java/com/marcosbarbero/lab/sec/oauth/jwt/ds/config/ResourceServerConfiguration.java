@@ -48,14 +48,14 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
                 .antMatchers(HttpMethod.DELETE, ROOT_PATTERN).access("#oauth2.hasScope('write')");
     }
 
-    @Bean
+//    @Bean
     public DefaultTokenServices tokenServices(final TokenStore tokenStore) {
         DefaultTokenServices tokenServices = new DefaultTokenServices();
         tokenServices.setTokenStore(tokenStore);
         return tokenServices;
     }
 
-    @Bean
+//    @Bean
     public TokenStore tokenStore() {
         if (tokenStore == null) {
             tokenStore = new JwtTokenStore(jwtAccessTokenConverter());
@@ -63,7 +63,7 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
         return tokenStore;
     }
 
-    @Bean
+//    @Bean
     public JwtAccessTokenConverter jwtAccessTokenConverter() {
         JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
         converter.setVerifierKey(getPublicKeyAsString());

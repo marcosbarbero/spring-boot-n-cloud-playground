@@ -29,6 +29,17 @@ public class SecurityProperties {
         @NotNull
         private String keyPairPassword;
 
+        @NotNull
+        private Resource publicKey;
+
+        public Resource getPublicKey() {
+            return publicKey;
+        }
+
+        public void setPublicKey(Resource publicKey) {
+            this.publicKey = publicKey;
+        }
+
         public Resource getKeyStore() {
             return keyStore;
         }
