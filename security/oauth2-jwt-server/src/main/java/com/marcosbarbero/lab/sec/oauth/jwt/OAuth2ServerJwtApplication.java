@@ -7,10 +7,10 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 
 @SpringBootApplication
 @EnableConfigurationProperties(SecurityProperties.class)
-public class OAuthServerJwtApplication {
+public class OAuth2ServerJwtApplication {
 
     public static void main(String... args) {
-        SpringApplication.run(OAuthServerJwtApplication.class, args);
+        SpringApplication.run(OAuth2ServerJwtApplication.class, args);
     }
 
 }
