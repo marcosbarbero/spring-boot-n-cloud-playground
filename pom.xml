@@ -72,6 +72,7 @@
 		<module>security/oauth2-opaque-server</module>
 		<module>security/downstream-service-jwt</module>
 		<module>security/downstream-service-opaque</module>
+		<module>security/oauth2-jwt-client</module>
 	</modules>
 
 	<dependencies>

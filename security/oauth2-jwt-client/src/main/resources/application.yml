@@ -1,0 +1,13 @@
+server:
+  port: 9200
+
+security:
+  oauth2:
+    client:
+      access-token-uri: http://localhost:9000/oauth/token
+      authentication-scheme: form
+      client-id: clientId
+      client-secret: secret
+      grant-type: client_credentials
+    resource:
+      user-info-uri: http://localhost:9000/users/me
