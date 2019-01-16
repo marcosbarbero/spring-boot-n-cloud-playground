@@ -17,6 +17,14 @@ a demo resource server will also be provided.
 For this project we'll be using [Spring Security 5](https://spring.io/projects/spring-security) through Spring Boot.
 If you're familiar with the earlier versions this [Spring Boot Migration Guide](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-2.0-Migration-Guide#oauth2)
 might be useful.
+
+## OAuth2
+
+### Authentication Server
+
+### Resource Server
+
+### OAuth2 Client
  
 # Footnote
  - The code used for this tutorial can be found on [GitHub](https://github.com/marcosbarbero/spring-boot-n-cloud-playground/tree/master/security).
