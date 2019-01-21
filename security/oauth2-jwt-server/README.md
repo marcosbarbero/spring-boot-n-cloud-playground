@@ -150,7 +150,7 @@ CREATE TABLE IF NOT EXISTS authorities (
 
 #### Java Code
 
-Now we need to do some Java code, as you might be familiar we need a startup class for a Spring Boot application:
+Now we need to do some Java code, as you may be familiar we need a startup class for a Spring Boot application:
 
 ```java
 package com.marcosbarbero.lab.sec.oauth.jwt;
