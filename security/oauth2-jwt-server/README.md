@@ -444,6 +444,37 @@ security:
 ### Resource Server Configuration
 
 [Follow this link](../downstream-service-jwt).
+
+### Testing all together
+
+To test all together we need to spin up the `Authorization Server` and the `Resource Server` as well, in my setup it will be
+running on port `9000` and `9100` accordingly.
+
+#### Generating the token
+
+```bash
+$ curl -u clientId:secret -X POST localhost:9000/oauth/token\?grant_type=password\&username=user\&password=pass
+
+{
+  "access_token" : "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NDgxODk0NDUsInVzZXJfbmFtZSI6InVzZXIiLCJhdXRob3JpdGllcyI6WyJST0xFX1VTRVIiXSwianRpIjoiYjFjYWQ3MTktZTkwMS00Njk5LTlhOWEtYTIwYzk2NDM5NjAzIiwiY2xpZW50X2lkIjoiY2xpZW50SWQiLCJzY29wZSI6WyJyZWFkIiwid3JpdGUiXX0.LkQ3KAj2kPY7yKmwXlhIFaHtt-31mJGWPb-_VpC8PWo9IBUpZQxg76WpahBJjet6O1ICx8b5Ab2CxH7ErTl0tL1jk5VZ_kp66E9E7bUQn-C09CY0fqxAan3pzpGrJsUvcR4pzyzLoRCuAqVRF5K2mdDQUZ8NaP0oXeVRuxyRdgjwMAkQGHpFC_Fk-7Hbsq2Y0GikD0UdkaH2Ey_vVyKy5aj3NrAZs62KFvQfSbifxd4uBHzUJSkiFE2Cx3u1xKs3W2q8MladwMwlQmWJROH6lDjQiybUZOEhJaktxQYGAinScnm11-9WOdaqohcr65PAQt48__rMRi0TUgvsxpz6ow",
+  "token_type" : "bearer",
+  "refresh_token" : "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiJ1c2VyIiwic2NvcGUiOlsicmVhZCIsIndyaXRlIl0sImF0aSI6ImIxY2FkNzE5LWU5MDEtNDY5OS05YTlhLWEyMGM5NjQzOTYwMyIsImV4cCI6MTU1MDc4MTE0NSwiYXV0aG9yaXRpZXMiOlsiUk9MRV9VU0VSIl0sImp0aSI6Ijg2OWFjZjM2LTJiODAtNGY5Ni04MzUwLTA5NTgyMzE3NTAzMCIsImNsaWVudF9pZCI6ImNsaWVudElkIn0.TDQwUNb627-f0-Cjn1vWZXFpzZSGpeKZq85ivA9zY_atOXM2WfjOxTLE6phnNLevjLSNAGrx1skm_sx6leQlrrmDi36nwiR7lvhv8xMbn1DkF5KaoWPhldW7GHsSIiauMu_cJ5Kmq89ZOEOlxYoXlLwfWYo75ISkKNYqko98yDogGrRAJxtc1aKIBLypLchhoCf8w43efd11itwvBdaLIb5ACfN30kztUqQtbeL8voQP6tOsRZbCgbOOKMTulOCRyBvaora4GJDV2qdvXdCUT-kORKDj9liqt2ae7OJzb2FuuXCGqBUrxYYK-H-wdwh7XFkXVe74Lev9YDUbyEmDHg",
+  "expires_in" : 299,
+  "scope" : "read write",
+  "jti" : "b1cad719-e901-4699-9a9a-a20c96439603"
+}
+```
+
+#### Accessing the resource
+
+Now that you have generated the token copy the `access_token` and add it to the request on the `Authorization` 
+HTTP Header, e.g: 
+
+```bash
+curl localhost:9100/avengers -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NDgxODk0NDUsInVzZXJfbmFtZSI6InVzZXIiLCJhdXRob3JpdGllcyI6WyJST0xFX1VTRVIiXSwianRpIjoiYjFjYWQ3MTktZTkwMS00Njk5LTlhOWEtYTIwYzk2NDM5NjAzIiwiY2xpZW50X2lkIjoiY2xpZW50SWQiLCJzY29wZSI6WyJyZWFkIiwid3JpdGUiXX0.LkQ3KAj2kPY7yKmwXlhIFaHtt-31mJGWPb-_VpC8PWo9IBUpZQxg76WpahBJjet6O1ICx8b5Ab2CxH7ErTl0tL1jk5VZ_kp66E9E7bUQn-C09CY0fqxAan3pzpGrJsUvcR4pzyzLoRCuAqVRF5K2mdDQUZ8NaP0oXeVRuxyRdgjwMAkQGHpFC_Fk-7Hbsq2Y0GikD0UdkaH2Ey_vVyKy5aj3NrAZs62KFvQfSbifxd4uBHzUJSkiFE2Cx3u1xKs3W2q8MladwMwlQmWJROH6lDjQiybUZOEhJaktxQYGAinScnm11-9WOdaqohcr65PAQt48__rMRi0TUgvsxpz6ow"
+
+["Iron man","Spider-man","Thor","Hulk","Cap","Vision"]
+```
  
 # Footnote
  - The code used for this tutorial can be found on [GitHub](https://github.com/marcosbarbero/spring-boot-n-cloud-playground/tree/master/security).

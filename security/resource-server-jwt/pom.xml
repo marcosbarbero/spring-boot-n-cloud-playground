@@ -12,23 +12,34 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>downstream-service-opaque</artifactId>
+    <artifactId>resource-server-jwt</artifactId>
     <description>
         <![CDATA[
-            Playground project for OAuth2 + Opaque Token using Spring Security
+            Playground project for OAuth2 + JWT using Spring Security
         ]]>
     </description>
 
     <dependencies>
         <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-oauth2</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security.oauth.boot</groupId>
+            <artifactId>spring-security-oauth2-autoconfigure</artifactId>
+            <version>2.1.2.RELEASE</version>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.6</version>
         </dependency>
     </dependencies>
 
