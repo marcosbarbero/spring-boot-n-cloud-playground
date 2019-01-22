@@ -1,6 +1,7 @@
 package com.marcosbarbero.lab.sec.oauth.jwt.config.security;
 
 import com.marcosbarbero.lab.sec.oauth.jwt.config.props.SecurityProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,6 +23,7 @@ import java.security.KeyPair;
 
 @Configuration
 @EnableAuthorizationServer
+@EnableConfigurationProperties(SecurityProperties.class)
 public class AuthorizationServerConfiguration extends AuthorizationServerConfigurerAdapter {
 
     private final DataSource dataSource;

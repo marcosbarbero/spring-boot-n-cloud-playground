@@ -173,7 +173,7 @@ INSERT INTO authorities (username, authority) VALUES ('user', 'ROLE_USER');
 
 #### Spring Security Configuration
 
-Add the following java configuration.
+Add the following Spring configuration class.
 
 ```java
 
@@ -249,9 +249,76 @@ few of password encoders and delegates based on a prefix, in our example we are 
 
 ### Authorization Server Configuration
 
+The authorization server validates the `client` and `user` credentials and provides the tokens, in this tutorial we'll be
+generating `JSON Web Tokens` a.k.a `JWT`.
+
+To sign the generated `JWT` tokens we'll be using a self-signed certificate and to do so before we start with the 
+Spring Configuration let's create a `@ConfigurationProperties` class to bind our configuration properties.
+
+```java
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.core.io.Resource;
+
+@ConfigurationProperties("security")
+public class SecurityProperties {
+
+    private JwtProperties jwt;
+
+    public JwtProperties getJwt() {
+        return jwt;
+    }
+
+    public void setJwt(JwtProperties jwt) {
+        this.jwt = jwt;
+    }
+
+    public static class JwtProperties {
+
+        private Resource keyStore;
+        private String keyStorePassword;
+        private String keyPairAlias;
+        private String keyPairPassword;
+
+        public Resource getKeyStore() {
+            return keyStore;
+        }
+
+        public void setKeyStore(Resource keyStore) {
+            this.keyStore = keyStore;
+        }
+
+        public String getKeyStorePassword() {
+            return keyStorePassword;
+        }
+
+        public void setKeyStorePassword(String keyStorePassword) {
+            this.keyStorePassword = keyStorePassword;
+        }
+
+        public String getKeyPairAlias() {
+            return keyPairAlias;
+        }
+
+        public void setKeyPairAlias(String keyPairAlias) {
+            this.keyPairAlias = keyPairAlias;
+        }
+
+        public String getKeyPairPassword() {
+            return keyPairPassword;
+        }
+
+        public void setKeyPairPassword(String keyPairPassword) {
+            this.keyPairPassword = keyPairPassword;
+        }
+    }
+}
+```
+
+Add the following Spring configuration class.
 
 ```java
 import com.marcosbarbero.lab.sec.oauth.jwt.config.props.SecurityProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -273,6 +340,7 @@ import java.security.KeyPair;
 
 @Configuration
 @EnableAuthorizationServer
+@EnableConfigurationProperties(SecurityProperties.class)
 public class AuthorizationServerConfiguration extends AuthorizationServerConfigurerAdapter {
 
     private final DataSource dataSource;
@@ -350,6 +418,27 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
         return new KeyStoreKeyFactory(jwtProperties.getKeyStore(), jwtProperties.getKeyStorePassword().toCharArray());
     }
 }
+```
+
+In the class above you'll find all the required Spring `@Bean`s for `JWT`. 
+The most important `@Bean`s are: `JwtAccessTokenConverter`, `JwtTokenStore` and the `DefaultTokenServices`.
+
+The `JwtAccessTokenConverter` uses the self-signed certificate to sign the generated tokens.  
+The `JwtTokenStore` implementation that just reads data from the tokens themselves. Not really a store since it 
+never persists anything and it uses the `JwtAccessTokenConverter` to generate and read the tokens.  
+The `DefaultTokenServices` uses the `TokenStore` to persist the tokens.
+
+>Follow this guide [to generate a self-signed certificate](https://dzone.com/articles/creating-self-signed-certificate).
+
+After generating your self-signed certificate configure it on your `application.yml`.
+
+```yaml
+security:
+  jwt:
+    key-store: classpath:keystore.jks
+    key-store-password: letmein
+    key-pair-alias: mytestkey
+    key-pair-password: changeme
 ```
 
 ### Resource Server Configuration
