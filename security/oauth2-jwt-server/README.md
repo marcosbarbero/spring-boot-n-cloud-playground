@@ -83,10 +83,10 @@ You can go to [start.spring.io](https://start.spring.io/) and generate a new pro
     </dependencies>
 ```
 
-#### Database schema
+#### Database
 
 For the sake of this tutorial we'll be using [H2 Database](http://www.h2database.com/html/main.html).  
-Here you can find a reference SQL schema required by Spring Security.
+Here you can find a reference OAuth2 SQL schema required by Spring Security.
 
 ```sql
 CREATE TABLE IF NOT EXISTS oauth_client_details (
@@ -130,7 +130,22 @@ CREATE TABLE IF NOT EXISTS oauth_refresh_token (
 CREATE TABLE IF NOT EXISTS oauth_code (
   code VARCHAR(256), authentication BLOB
 );
+```
 
+And then add the following entry
+
+```sql
+-- The encrypted client_secret it `secret`
+INSERT INTO oauth_client_details (client_id, client_secret, scope, authorized_grant_types, authorities, access_token_validity)
+  VALUES ('clientId', '{bcrypt}$2a$10$vCXMWCn7fDZWOcLnIEhmK.74dvK1Eh8ae2WrWlhr2ETPLoxQctN4.', 'read,write', 'password,refresh_token,client_credentials', 'ROLE_CLIENT', 300);
+```
+
+>The `client_secret` above was generated using [bcrypt](https://en.wikipedia.org/wiki/Bcrypt).  
+>The suffix `{bcrypt}` is required because we'll using Spring Security 5.x's new feature of [DelegatingPasswordEncoder](https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#pe-dpe).
+
+Bellow here you can find a User/Authority reference SQL schema used by Spring's `org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl`.
+
+```sql
 CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   username VARCHAR(256) NOT NULL,
@@ -146,33 +161,97 @@ CREATE TABLE IF NOT EXISTS authorities (
 );
 ```
 
+Same as before add the following entries for the user and its authority.
+
+```sql
+-- The encrypted password is `pass`
+INSERT INTO users (id, username, password, enabled) VALUES (1, 'user', '{bcrypt}$2a$10$cyf5NfobcruKQ8XGjUJkEegr9ZWFqaea6vjpXWEaSqTa2xL9wjgQC', 1);
+INSERT INTO authorities (username, authority) VALUES ('user', 'ROLE_USER');
+```
+
 >Note: As this tutorial uses `JWT` not all the tables are required.
 
-#### Java Code
+#### Spring Security Configuration
 
-Now we need to do some Java code, as you may be familiar we need a startup class for a Spring Boot application:
+Add the following java configuration.
 
 ```java
-package com.marcosbarbero.lab.sec.oauth.jwt;
+package com.marcosbarbero.lab.sec.oauth.jwt.config.security;
 
-import com.marcosbarbero.lab.sec.oauth.jwt.config.props.SecurityProperties;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
-@SpringBootApplication
-@EnableConfigurationProperties(SecurityProperties.class)
-public class OAuth2ServerJwtApplication {
+import javax.sql.DataSource;
 
-    public static void main(String... args) {
-        SpringApplication.run(OAuth2ServerJwtApplication.class, args);
+@EnableWebSecurity
+public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
+
+    private final DataSource dataSource;
+
+    private PasswordEncoder passwordEncoder;
+    private UserDetailsService userDetailsService;
+
+    public WebSecurityConfiguration(final DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
+    @Override
+    protected void configure(final AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(userDetailsService())
+                .passwordEncoder(passwordEncoder());
+    }
+
+    @Bean
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        if (passwordEncoder == null) {
+            passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+        }
+        return passwordEncoder;
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+        if (userDetailsService == null) {
+            userDetailsService = new JdbcDaoImpl();
+            ((JdbcDaoImpl) userDetailsService).setDataSource(dataSource);
+        }
+        return userDetailsService;
     }
 
 }
 ```
+
+Quoting from [Spring Blog](https://spring.io/blog/2013/07/03/spring-security-java-config-preview-web-security#websecurityconfigureradapter):
+
+>The @EnableWebSecurity annotation and WebSecurityConfigurerAdapter work together to provide web based security.
+
+If you are using Spring Boot the `DataSource` object will be auto-configured and you can just inject it to the class instead of defining it yourself.
+it needs to be injected to the `UserDetailsService` in which will be using the provided `JdbcDaoImpl` provided by Spring Security, if necessary 
+you can replace this with your own implementation.
+
+As the Spring Security's `AuthenticationManager` is required by some auto-configured Spring `@Bean`s it's necessary to
+override the `authenticationManagerBean` method and annotate is as a `@Bean`.
+
+The `PasswordEncoder` will be handled by `PasswordEncoderFactories.createDelegatingPasswordEncoder()` in which handles a
+few of password encoders and delegates based on a prefix, in our example we are prefixing the passwords with `{bcrypt}`.
 
 ### Resource Server
  
 # Footnote
  - The code used for this tutorial can be found on [GitHub](https://github.com/marcosbarbero/spring-boot-n-cloud-playground/tree/master/security).
  - [OAuth 2.0](https://www.oauth.com/) 
+ - [Spring Security Java Config Preview](https://spring.io/blog/2013/07/03/spring-security-java-config-preview-web-security)
+ - [Spring Boot 2 - Migration Guide](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-2.0-Migration-Guide#authenticationmanager-bean)
