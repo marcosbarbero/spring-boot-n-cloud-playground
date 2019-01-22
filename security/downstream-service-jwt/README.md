@@ -1,2 +1,2 @@
-Downstream Resource Service - JWT
+Resource Server JWT
 ---

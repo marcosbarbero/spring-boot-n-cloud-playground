@@ -3,8 +3,6 @@ package com.marcosbarbero.lab.sec.oauth.jwt.ds.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.core.io.Resource;
 
-import javax.validation.constraints.NotNull;
-
 @ConfigurationProperties("security")
 public class SecurityProperties {
 
@@ -20,7 +18,6 @@ public class SecurityProperties {
 
     public static class JwtProperties {
 
-        @NotNull
         private Resource publicKey;
 
         public Resource getPublicKey() {
