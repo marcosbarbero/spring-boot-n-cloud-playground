@@ -132,6 +132,8 @@ CREATE TABLE IF NOT EXISTS oauth_code (
 );
 ```
 
+>Note: As this tutorial uses `JWT` not all the tables are required.
+
 And then add the following entry
 
 ```sql
@@ -141,9 +143,9 @@ INSERT INTO oauth_client_details (client_id, client_secret, scope, authorized_gr
 ```
 
 >The `client_secret` above was generated using [bcrypt](https://en.wikipedia.org/wiki/Bcrypt).  
->The suffix `{bcrypt}` is required because we'll using Spring Security 5.x's new feature of [DelegatingPasswordEncoder](https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#pe-dpe).
+>The prefix `{bcrypt}` is required because we'll using Spring Security 5.x's new feature of [DelegatingPasswordEncoder](https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#pe-dpe).
 
-Bellow here you can find a User/Authority reference SQL schema used by Spring's `org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl`.
+Bellow here you can find the `User` and `Authority` reference SQL schema used by Spring's `org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl`.
 
 ```sql
 CREATE TABLE IF NOT EXISTS users (
@@ -168,8 +170,6 @@ Same as before add the following entries for the user and its authority.
 INSERT INTO users (id, username, password, enabled) VALUES (1, 'user', '{bcrypt}$2a$10$cyf5NfobcruKQ8XGjUJkEegr9ZWFqaea6vjpXWEaSqTa2xL9wjgQC', 1);
 INSERT INTO authorities (username, authority) VALUES ('user', 'ROLE_USER');
 ```
-
->Note: As this tutorial uses `JWT` not all the tables are required.
 
 #### Spring Security Configuration
 
