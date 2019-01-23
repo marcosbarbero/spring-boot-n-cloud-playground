@@ -54,7 +54,7 @@ import java.util.Collection;
 
 @RestController
 @RequestMapping("/avengers")
-public class DownstreamController {
+public class ResourceController {
 
     @GetMapping
     @PreAuthorize("hasRole('ROLE_USER')")
@@ -64,6 +64,21 @@ public class DownstreamController {
 
 }
 ```
+
+The `@PreAuthorize` annotation validates whether the user has the given role prior to execute the code, to make it work
+it's necessary to enable the `prePost` annotations, to do so add the following class:
+
+```java
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+
+@EnableGlobalMethodSecurity(prePostEnabled = true)
+public class WebSecurityConfiguration {
+
+}
+```
+
+The important part here is the `@EnableGlobalMethodSecurity(prePostEnabled = true)` annotation, the `prePostEnabled` flag
+is set to `false` by default.
 
 ## Resource Server Configuration
 

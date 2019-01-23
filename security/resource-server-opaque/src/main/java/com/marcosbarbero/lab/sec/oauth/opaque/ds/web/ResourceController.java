@@ -11,7 +11,7 @@ import java.util.Collection;
 
 @RestController
 @RequestMapping("/avengers")
-public class DownstreamController {
+public class ResourceController {
 
     @GetMapping
     @PreAuthorize("hasRole('ROLE_CLIENT')")
