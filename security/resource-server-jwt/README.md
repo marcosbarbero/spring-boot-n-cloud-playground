@@ -39,8 +39,8 @@ in which can be a document a photo or something else, in our case it will be a R
 
 ## Defining our protected API
 
-The code bellow defines the endpoint `/avengers` which returns a list containing a few [Avengers](https://en.wikipedia.org/wiki/The_Avengers_(2012_film))
-and it requires the authenticated user to have the `ROLE_USER` to access. 
+The code bellow defines the endpoint `/me` which returns the `Principal` object and it requires the authenticated 
+user to have the `ROLE_USER` to access. 
 
 ```java
 import org.springframework.http.ResponseEntity;
