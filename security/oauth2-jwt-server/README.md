@@ -443,7 +443,7 @@ security:
 
 ### Resource Server Configuration
 
-[Follow this link](../downstream-service-jwt).
+[Follow this link](../resource-server-jwt).
 
 ### Testing all together
 
