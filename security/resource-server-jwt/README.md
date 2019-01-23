@@ -49,17 +49,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Arrays;
-import java.util.Collection;
+import java.security.Principal;
 
 @RestController
-@RequestMapping("/avengers")
-public class ResourceController {
+@RequestMapping("/me")
+public class UserController {
 
     @GetMapping
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<Collection<String>> get() {
-        return ResponseEntity.ok(Arrays.asList("Iron man", "Spider-man", "Thor", "Hulk", "Cap", "Vision"));
+    public ResponseEntity<Principal> get(final Principal principal) {
+        return ResponseEntity.ok(principal);
     }
 
 }
