@@ -10,7 +10,7 @@ import java.security.Principal;
 
 @RestController
 @RequestMapping("/me")
-public class ResourceController {
+public class UserController {
 
     @GetMapping
     @PreAuthorize("hasRole('ROLE_USER')")
