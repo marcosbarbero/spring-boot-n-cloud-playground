@@ -1,4 +1,4 @@
-Downstream Service - Opaque Token
+Resource Server - Opaque Token
 ---
 
  - Remote Token Services AutoConfiguration 
