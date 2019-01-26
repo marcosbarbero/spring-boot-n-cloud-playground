@@ -6,7 +6,7 @@ In this folder it's possible to find sample projects implementing application se
 
  - JWT
    - [OAuth2 Server](./oauth2-jwt-server)
-   - [OAuth2 Downstream Service](./downstream-service-jwt)
+   - [Resource Server](./resource-server-jwt)
  - Opaque Token
    - [OAuth2 Server](./oauth2-opaque-server)
-   - [OAuth2 Downstream Service](./downstream-service-opaque)
+   - [Resource Server](./resource-server-opaque)
