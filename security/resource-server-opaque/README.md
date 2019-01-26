@@ -1,4 +1,4 @@
-Resource Server JWT
+Resource Server Opaque Token - RemoteTokenServices
 ---
 
 The resource server hosts the [HTTP resources](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Identifying_resources_on_the_Web) 
@@ -27,14 +27,8 @@ in which can be a document a photo or something else, in our case it will be a R
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.6</version>
         </dependency>                
-    </dependencies>
+   </dependencies>
 ```
 
 ## Defining our protected API
@@ -79,73 +73,9 @@ public class WebSecurityConfiguration {
 The important part here is the `@EnableGlobalMethodSecurity(prePostEnabled = true)` annotation, the `prePostEnabled` flag
 is set to `false` by default.
 
-## Resource Server Configuration
+## RemoteTokenServices
 
-To decode the `JWT` token it will be necessary to use the `public key` from the self-signed certificated used on the
-[Authorization Server](../oauth2-jwt-server) to sign the token, to do so let's first create a `@ConfigurationProperties`
-class to bind the configuration properties.
-
-```java
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.core.io.Resource;
-
-@ConfigurationProperties("security")
-public class SecurityProperties {
-
-    private JwtProperties jwt;
-
-    public JwtProperties getJwt() {
-        return jwt;
-    }
-
-    public void setJwt(JwtProperties jwt) {
-        this.jwt = jwt;
-    }
-
-    public static class JwtProperties {
-
-        private Resource publicKey;
-
-        public Resource getPublicKey() {
-            return publicKey;
-        }
-
-        public void setPublicKey(Resource publicKey) {
-            this.publicKey = publicKey;
-        }
-    }
-
-}
-```
-
-Use the following command to export the `public key` from the generated JKS: 
-
-````bash
-$ keytool -list -rfc --keystore keystore.jks | openssl x509 -inform pem -pubkey -noout
-````
-
-A sample response look like this:
-
-```bash
------BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmWI2jtKwvf0W1hdMdajc
-h+mFx9FZe3CZnKNvT/d0+2O6V1Pgkz7L2FcQx2uoV7gHgk5mmb2MZUsy/rDKj0dM
-fLzyXqBcCRxD6avALwu8AAiGRxe2dl8HqIHyo7P4R1nUaea1WCZB/i7AxZNAQtcC
-cSvMvF2t33p3vYXY6SqMucMD4yHOTXexoWhzwRqjyyC8I8uCYJ+xIfQvaK9Q1RzK
-Rj99IRa1qyNgdeHjkwW9v2Fd4O/Ln1Tzfnk/dMLqxaNsXPw37nw+OUhycFDPPQF/
-H4Q4+UDJ3ATf5Z2yQKkUQlD45OO2mIXjkWprAmOCi76dLB2yzhCX/plGJwcgb8XH
-EQIDAQAB
------END PUBLIC KEY-----
-```
-
-Copy it to a `public.txt` file and place it at `/src/main/resources` and then configure your `application.yml` pointing
-to this file:
-
-```yaml
-security:
-  jwt:
-    public-key: classpath:public.txt
-```
+WIP
 
 Now let's add the Spring's configuration for the resource server.
 
