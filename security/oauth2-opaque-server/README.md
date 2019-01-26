@@ -38,7 +38,7 @@ might be useful.
 
 ### Authorization Server
 
-To build our `Auth Server` we'll be using [Spring Security 5.x](https://spring.io/projects/spring-security) through 
+To build our `Authorization Server` we'll be using [Spring Security 5.x](https://spring.io/projects/spring-security) through 
 [Spring Boot 2.0.x](https://spring.io/projects/spring-boot).
 
 #### Dependencies
@@ -83,7 +83,7 @@ You can go to [start.spring.io](https://start.spring.io/) and generate a new pro
 
 #### Database
 
-For the sake of this tutorial we'll be using [H2 Database](http://www.h2database.com/html/main.html).  
+For the sake of this guide we'll be using [H2 Database](http://www.h2database.com/html/main.html).  
 Here you can find a reference OAuth2 SQL schema required by Spring Security.
 
 ```sql
@@ -465,7 +465,7 @@ $ curl -i localhost:9101/me -H "Authorization: Bearer c06a4137-fa07-4d9a-97f9-85
 ```
  
 # Footnote
- - The code used for this tutorial can be found on [GitHub](https://github.com/marcosbarbero/spring-boot-n-cloud-playground/tree/master/security).
+ - The code used for this guide can be found on [GitHub](https://github.com/marcosbarbero/spring-boot-n-cloud-playground/tree/master/security).
  - [OAuth 2.0](https://www.oauth.com/) 
  - [Spring Security Java Config Preview](https://spring.io/blog/2013/07/03/spring-security-java-config-preview-web-security)
  - [Spring Boot 2 - Migration Guide](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-2.0-Migration-Guide#authenticationmanager-bean)
