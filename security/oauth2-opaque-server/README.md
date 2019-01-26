@@ -32,8 +32,6 @@ might be useful.
     - A unique token used to access protected resources
   - **Scope**
     - A Permission
-  - **JWT**
-    - JSON Web Token is a method for representing claims securely between two parties as defined in [RFC 7519](https://tools.ietf.org/html/rfc7519)
   - **Grant type**
     - A `grant` is a method of acquiring an access token. 
     - [Read more about grant types here](https://oauth.net/2/grant-types/)
@@ -131,8 +129,6 @@ CREATE TABLE IF NOT EXISTS oauth_code (
   code VARCHAR(256), authentication BLOB
 );
 ```
-
->Note: As this tutorial uses `JWT` not all the tables are required.
 
 And then add the following entry
 
@@ -249,76 +245,11 @@ few of password encoders and delegates based on a prefix, in our example we are 
 
 ### Authorization Server Configuration
 
-The authorization server validates the `client` and `user` credentials and provides the tokens, in this tutorial we'll be
-generating `JSON Web Tokens` a.k.a `JWT`.
-
-To sign the generated `JWT` tokens we'll be using a self-signed certificate and to do so before we start with the 
-Spring Configuration let's create a `@ConfigurationProperties` class to bind our configuration properties.
-
-```java
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.core.io.Resource;
-
-@ConfigurationProperties("security")
-public class SecurityProperties {
-
-    private JwtProperties jwt;
-
-    public JwtProperties getJwt() {
-        return jwt;
-    }
-
-    public void setJwt(JwtProperties jwt) {
-        this.jwt = jwt;
-    }
-
-    public static class JwtProperties {
-
-        private Resource keyStore;
-        private String keyStorePassword;
-        private String keyPairAlias;
-        private String keyPairPassword;
-
-        public Resource getKeyStore() {
-            return keyStore;
-        }
-
-        public void setKeyStore(Resource keyStore) {
-            this.keyStore = keyStore;
-        }
-
-        public String getKeyStorePassword() {
-            return keyStorePassword;
-        }
-
-        public void setKeyStorePassword(String keyStorePassword) {
-            this.keyStorePassword = keyStorePassword;
-        }
-
-        public String getKeyPairAlias() {
-            return keyPairAlias;
-        }
-
-        public void setKeyPairAlias(String keyPairAlias) {
-            this.keyPairAlias = keyPairAlias;
-        }
-
-        public String getKeyPairPassword() {
-            return keyPairPassword;
-        }
-
-        public void setKeyPairPassword(String keyPairPassword) {
-            this.keyPairPassword = keyPairPassword;
-        }
-    }
-}
-```
+The authorization server validates the `client` and `user` credentials and provides the tokens.
 
 Add the following Spring configuration class.
 
 ```java
-import com.marcosbarbero.lab.sec.oauth.jwt.config.props.SecurityProperties;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -331,114 +262,64 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Aut
 import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
-import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
-import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
-import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
+import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 
 import javax.sql.DataSource;
-import java.security.KeyPair;
 
 @Configuration
 @EnableAuthorizationServer
-@EnableConfigurationProperties(SecurityProperties.class)
 public class AuthorizationServerConfiguration extends AuthorizationServerConfigurerAdapter {
 
     private final DataSource dataSource;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
-    private final SecurityProperties securityProperties;
 
-    private JwtAccessTokenConverter jwtAccessTokenConverter;
     private TokenStore tokenStore;
 
     public AuthorizationServerConfiguration(final DataSource dataSource, final PasswordEncoder passwordEncoder,
-                                            final AuthenticationManager authenticationManager, final SecurityProperties securityProperties) {
+                                            final AuthenticationManager authenticationManager) {
         this.dataSource = dataSource;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
-        this.securityProperties = securityProperties;
     }
 
     @Bean
     public TokenStore tokenStore() {
         if (tokenStore == null) {
-            tokenStore = new JwtTokenStore(jwtAccessTokenConverter());
+            tokenStore = new JdbcTokenStore(dataSource);
         }
         return tokenStore;
     }
 
     @Bean
-    public DefaultTokenServices tokenServices(final TokenStore tokenStore,
-                                              final ClientDetailsService clientDetailsService) {
+    public DefaultTokenServices tokenServices(final ClientDetailsService clientDetailsService) {
         DefaultTokenServices tokenServices = new DefaultTokenServices();
         tokenServices.setSupportRefreshToken(true);
-        tokenServices.setTokenStore(tokenStore);
+        tokenServices.setTokenStore(tokenStore());
         tokenServices.setClientDetailsService(clientDetailsService);
-        tokenServices.setAuthenticationManager(this.authenticationManager);
+        tokenServices.setAuthenticationManager(authenticationManager);
         return tokenServices;
-    }
-
-    @Bean
-    public JwtAccessTokenConverter jwtAccessTokenConverter() {
-        if (jwtAccessTokenConverter != null) {
-            return jwtAccessTokenConverter;
-        }
-
-        SecurityProperties.JwtProperties jwtProperties = securityProperties.getJwt();
-        KeyPair keyPair = keyPair(jwtProperties, keyStoreKeyFactory(jwtProperties));
-
-        jwtAccessTokenConverter = new JwtAccessTokenConverter();
-        jwtAccessTokenConverter.setKeyPair(keyPair);
-        return jwtAccessTokenConverter;
     }
 
     @Override
     public void configure(final ClientDetailsServiceConfigurer clients) throws Exception {
-        clients.jdbc(this.dataSource);
+        clients.jdbc(dataSource);
     }
 
     @Override
     public void configure(final AuthorizationServerEndpointsConfigurer endpoints) {
-        endpoints.authenticationManager(this.authenticationManager)
-                .accessTokenConverter(jwtAccessTokenConverter())
+        endpoints.authenticationManager(authenticationManager)
                 .tokenStore(tokenStore());
     }
 
     @Override
     public void configure(final AuthorizationServerSecurityConfigurer oauthServer) {
-        oauthServer.passwordEncoder(this.passwordEncoder).tokenKeyAccess("permitAll()")
+        oauthServer.passwordEncoder(passwordEncoder)
+                .tokenKeyAccess("permitAll()")
                 .checkTokenAccess("isAuthenticated()");
     }
 
-    private KeyPair keyPair(SecurityProperties.JwtProperties jwtProperties, KeyStoreKeyFactory keyStoreKeyFactory) {
-        return keyStoreKeyFactory.getKeyPair(jwtProperties.getKeyPairAlias(), jwtProperties.getKeyPairPassword().toCharArray());
-    }
-
-    private KeyStoreKeyFactory keyStoreKeyFactory(SecurityProperties.JwtProperties jwtProperties) {
-        return new KeyStoreKeyFactory(jwtProperties.getKeyStore(), jwtProperties.getKeyStorePassword().toCharArray());
-    }
 }
-```
-
-In the class above you'll find all the required Spring `@Bean`s for `JWT`. 
-The most important `@Bean`s are: `JwtAccessTokenConverter`, `JwtTokenStore` and the `DefaultTokenServices`.
-
-The `JwtAccessTokenConverter` uses the self-signed certificate to sign the generated tokens.  
-The `JwtTokenStore` implementation that just reads data from the tokens themselves. Not really a store since it 
-never persists anything and it uses the `JwtAccessTokenConverter` to generate and read the tokens.  
-The `DefaultTokenServices` uses the `TokenStore` to persist the tokens.
-
->Follow this guide [to generate a self-signed certificate](https://dzone.com/articles/creating-self-signed-certificate).
-
-After generating your self-signed certificate configure it on your `application.yml`.
-
-```yaml
-security:
-  jwt:
-    key-store: classpath:keystore.jks
-    key-store-password: letmein
-    key-pair-alias: mytestkey
-    key-pair-password: changeme
 ```
 
 ### Resource Server Configuration
@@ -453,15 +334,14 @@ running on port `9000` and `9100` accordingly.
 #### Generating the token
 
 ```bash
-$ curl -u clientId:secret -X POST localhost:9000/oauth/token\?grant_type=password\&username=user\&password=pass
+$ curl -u clientId:secret -X POST localhost:9001/oauth/token\?grant_type=password\&username=user\&password=pass
 
 {
-  "access_token" : "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NDgxODk0NDUsInVzZXJfbmFtZSI6InVzZXIiLCJhdXRob3JpdGllcyI6WyJST0xFX1VTRVIiXSwianRpIjoiYjFjYWQ3MTktZTkwMS00Njk5LTlhOWEtYTIwYzk2NDM5NjAzIiwiY2xpZW50X2lkIjoiY2xpZW50SWQiLCJzY29wZSI6WyJyZWFkIiwid3JpdGUiXX0.LkQ3KAj2kPY7yKmwXlhIFaHtt-31mJGWPb-_VpC8PWo9IBUpZQxg76WpahBJjet6O1ICx8b5Ab2CxH7ErTl0tL1jk5VZ_kp66E9E7bUQn-C09CY0fqxAan3pzpGrJsUvcR4pzyzLoRCuAqVRF5K2mdDQUZ8NaP0oXeVRuxyRdgjwMAkQGHpFC_Fk-7Hbsq2Y0GikD0UdkaH2Ey_vVyKy5aj3NrAZs62KFvQfSbifxd4uBHzUJSkiFE2Cx3u1xKs3W2q8MladwMwlQmWJROH6lDjQiybUZOEhJaktxQYGAinScnm11-9WOdaqohcr65PAQt48__rMRi0TUgvsxpz6ow",
+  "access_token" : "e47876b0-9962-41f1-ace3-e3381250ccea",
   "token_type" : "bearer",
-  "refresh_token" : "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiJ1c2VyIiwic2NvcGUiOlsicmVhZCIsIndyaXRlIl0sImF0aSI6ImIxY2FkNzE5LWU5MDEtNDY5OS05YTlhLWEyMGM5NjQzOTYwMyIsImV4cCI6MTU1MDc4MTE0NSwiYXV0aG9yaXRpZXMiOlsiUk9MRV9VU0VSIl0sImp0aSI6Ijg2OWFjZjM2LTJiODAtNGY5Ni04MzUwLTA5NTgyMzE3NTAzMCIsImNsaWVudF9pZCI6ImNsaWVudElkIn0.TDQwUNb627-f0-Cjn1vWZXFpzZSGpeKZq85ivA9zY_atOXM2WfjOxTLE6phnNLevjLSNAGrx1skm_sx6leQlrrmDi36nwiR7lvhv8xMbn1DkF5KaoWPhldW7GHsSIiauMu_cJ5Kmq89ZOEOlxYoXlLwfWYo75ISkKNYqko98yDogGrRAJxtc1aKIBLypLchhoCf8w43efd11itwvBdaLIb5ACfN30kztUqQtbeL8voQP6tOsRZbCgbOOKMTulOCRyBvaora4GJDV2qdvXdCUT-kORKDj9liqt2ae7OJzb2FuuXCGqBUrxYYK-H-wdwh7XFkXVe74Lev9YDUbyEmDHg",
+  "refresh_token" : "8e17a71c-cb39-4904-8205-4d9f8c71aeef",
   "expires_in" : 299,
-  "scope" : "read write",
-  "jti" : "b1cad719-e901-4699-9a9a-a20c96439603"
+  "scope" : "read write"
 }
 ```
 
@@ -471,39 +351,105 @@ Now that you have generated the token copy the `access_token` and add it to the 
 HTTP Header, e.g: 
 
 ```bash
-curl localhost:9100/me -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NDgxODk0NDUsInVzZXJfbmFtZSI6InVzZXIiLCJhdXRob3JpdGllcyI6WyJST0xFX1VTRVIiXSwianRpIjoiYjFjYWQ3MTktZTkwMS00Njk5LTlhOWEtYTIwYzk2NDM5NjAzIiwiY2xpZW50X2lkIjoiY2xpZW50SWQiLCJzY29wZSI6WyJyZWFkIiwid3JpdGUiXX0.LkQ3KAj2kPY7yKmwXlhIFaHtt-31mJGWPb-_VpC8PWo9IBUpZQxg76WpahBJjet6O1ICx8b5Ab2CxH7ErTl0tL1jk5VZ_kp66E9E7bUQn-C09CY0fqxAan3pzpGrJsUvcR4pzyzLoRCuAqVRF5K2mdDQUZ8NaP0oXeVRuxyRdgjwMAkQGHpFC_Fk-7Hbsq2Y0GikD0UdkaH2Ey_vVyKy5aj3NrAZs62KFvQfSbifxd4uBHzUJSkiFE2Cx3u1xKs3W2q8MladwMwlQmWJROH6lDjQiybUZOEhJaktxQYGAinScnm11-9WOdaqohcr65PAQt48__rMRi0TUgvsxpz6ow"
+$ curl -i localhost:9101/me -H "Authorization: Bearer c06a4137-fa07-4d9a-97f9-85d1ba820d3a"
 
 {
   "authorities" : [ {
-    "authority" : "ROLE_GUEST"
+    "authority" : "ROLE_USER"
   } ],
   "details" : {
     "remoteAddress" : "127.0.0.1",
     "sessionId" : null,
-    "tokenValue" : "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NDgyMzcxNDEsInVzZXJfbmFtZSI6Imd1ZXN0IiwiYXV0aG9yaXRpZXMiOlsiUk9MRV9HVUVTVCJdLCJqdGkiOiIzNDk1ODE1MC0wOGJkLTQwMDYtYmNhMC1lM2RkYjAxMGU2NjUiLCJjbGllbnRfaWQiOiJjbGllbnRJZCIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdfQ.WUwAh-aKgh_Bqk-a9ijw67EI6H8gFrb3D_WdwlEcITskIybhacHjT6E7cUXjdBT7GCRvvJ-yxzFJIQyI6y0t61SInpqVG2GlAwtTxR5reG0e4ZtcKoq2rbQghK8hWenGplGT31kjDY78zZv-WqCAc0-MM4cC06fTXFzdhsdueY789lCasSD4WMMC6bWbN098lHF96rMpCdlW13EalrPgcKeuvZtUBrC8ntL8Bg3LRMcU1bFKTRAwlVxw1aYyqeEN4NSxkiSgQod2dltA-b3c15L-fXoOWNGnPB68hqgK48ymuemRQTSg3eKmHFAQdDL6pxQ8_D_ZWAL3QhsKQVGDKg",
+    "tokenValue" : "c06a4137-fa07-4d9a-97f9-85d1ba820d3a",
     "tokenType" : "Bearer",
     "decodedDetails" : null
   },
   "authenticated" : true,
   "userAuthentication" : {
     "authorities" : [ {
-      "authority" : "ROLE_GUEST"
+      "authority" : "ROLE_USER"
     } ],
-    "details" : null,
+    "details" : {
+      "authorities" : [ {
+        "authority" : "ROLE_USER"
+      } ],
+      "details" : {
+        "remoteAddress" : "127.0.0.1",
+        "sessionId" : null,
+        "tokenValue" : "c06a4137-fa07-4d9a-97f9-85d1ba820d3a",
+        "tokenType" : "Bearer",
+        "decodedDetails" : null
+      },
+      "authenticated" : true,
+      "userAuthentication" : {
+        "authorities" : [ {
+          "authority" : "ROLE_USER"
+        } ],
+        "details" : {
+          "grant_type" : "password",
+          "username" : "user"
+        },
+        "authenticated" : true,
+        "principal" : {
+          "password" : null,
+          "username" : "user",
+          "authorities" : [ {
+            "authority" : "ROLE_USER"
+          } ],
+          "accountNonExpired" : true,
+          "accountNonLocked" : true,
+          "credentialsNonExpired" : true,
+          "enabled" : true
+        },
+        "credentials" : null,
+        "name" : "user"
+      },
+      "clientOnly" : false,
+      "oauth2Request" : {
+        "clientId" : "clientId",
+        "scope" : [ "read", "write" ],
+        "requestParameters" : {
+          "grant_type" : "password",
+          "username" : "user"
+        },
+        "resourceIds" : [ ],
+        "authorities" : [ {
+          "authority" : "ROLE_CLIENT"
+        } ],
+        "approved" : true,
+        "refresh" : false,
+        "redirectUri" : null,
+        "responseTypes" : [ ],
+        "extensions" : { },
+        "grantType" : "password",
+        "refreshTokenRequest" : null
+      },
+      "credentials" : "",
+      "principal" : {
+        "password" : null,
+        "username" : "user",
+        "authorities" : [ {
+          "authority" : "ROLE_USER"
+        } ],
+        "accountNonExpired" : true,
+        "accountNonLocked" : true,
+        "credentialsNonExpired" : true,
+        "enabled" : true
+      },
+      "name" : "user"
+    },
     "authenticated" : true,
-    "principal" : "guest",
+    "principal" : "user",
     "credentials" : "N/A",
-    "name" : "guest"
+    "name" : "user"
   },
+  "principal" : "user",
   "credentials" : "",
-  "principal" : "guest",
   "clientOnly" : false,
   "oauth2Request" : {
-    "clientId" : "clientId",
-    "scope" : [ "read", "write" ],
-    "requestParameters" : {
-      "client_id" : "clientId"
-    },
+    "clientId" : null,
+    "scope" : [ ],
+    "requestParameters" : { },
     "resourceIds" : [ ],
     "authorities" : [ ],
     "approved" : true,
@@ -514,7 +460,7 @@ curl localhost:9100/me -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6Ikp
     "grantType" : null,
     "refreshTokenRequest" : null
   },
-  "name" : "guest"
+  "name" : "user"
 }
 ```
  
