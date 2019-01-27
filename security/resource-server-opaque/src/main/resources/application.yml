@@ -4,7 +4,7 @@ server:
 security:
   oauth2:
     resource:
-      user-info-uri: http://localhost:9001/users/me
+      user-info-uri: http://localhost:9001/profile/me
 
 spring:
   jackson:

@@ -9,7 +9,7 @@ import java.security.Principal;
 
 @RestController
 @RequestMapping("/users")
-public class UserController {
+public class ProfileController {
 
     @GetMapping("/me")
     public ResponseEntity<Principal> get(final Principal principal) {

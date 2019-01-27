@@ -322,6 +322,31 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 }
 ```
 
+### User Info Endpoint
+
+Now we need to define an endpoint where the authorization token can be decoded into an `Authorization` object, to do so
+add the following class.
+
+```java
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.security.Principal;
+
+@RestController
+@RequestMapping("/profile")
+public class UserController {
+
+    @GetMapping("/me")
+    public ResponseEntity<Principal> get(final Principal principal) {
+        return ResponseEntity.ok(principal);
+    }
+
+}
+```
+
 ### Resource Server Configuration
 
 [Follow this link](../resource-server-opaque).
@@ -329,7 +354,7 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 ### Testing all together
 
 To test all together we need to spin up the `Authorization Server` and the `Resource Server` as well, in my setup it will be
-running on port `9000` and `9100` accordingly.
+running on port `9001` and `9101` accordingly.
 
 #### Generating the token
 
@@ -469,3 +494,4 @@ $ curl -i localhost:9101/me -H "Authorization: Bearer c06a4137-fa07-4d9a-97f9-85
  - [OAuth 2.0](https://www.oauth.com/) 
  - [Spring Security Java Config Preview](https://spring.io/blog/2013/07/03/spring-security-java-config-preview-web-security)
  - [Spring Boot 2 - Migration Guide](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-2.0-Migration-Guide#authenticationmanager-bean)
+ - [Spring - OAuth2 Developers Guide](https://projects.spring.io/spring-security-oauth/docs/oauth2.html)

@@ -33,7 +33,7 @@ in which can be a document a photo or something else, in our case it will be a R
 
 ## Defining our protected API
 
-The code bellow defines the endpoint `/me` which returns the `Principal` object and it requires the authenticated 
+The code bellow defines the endpoint `/me` and returns the `Principal` object and it requires the authenticated 
 user to have the `ROLE_USER` to access. 
 
 ```java
@@ -71,97 +71,41 @@ public class WebSecurityConfiguration {
 ```
 
 The important part here is the `@EnableGlobalMethodSecurity(prePostEnabled = true)` annotation, the `prePostEnabled` flag
-is set to `false` by default.
+is set to `false` by default, turning it to `true` makes the `@PreAuthorize` annotation to work. 
 
-## RemoteTokenServices
-
-WIP
+## Resource Server Configuration
 
 Now let's add the Spring's configuration for the resource server.
 
 ```java
-import org.apache.commons.io.IOUtils;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
-import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
-import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
-import org.springframework.security.oauth2.provider.token.TokenStore;
-import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
-import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
-
-import java.io.IOException;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Configuration
 @EnableResourceServer
-@EnableConfigurationProperties(SecurityProperties.class)
 public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
-
-    private static final String ROOT_PATTERN = "/**";
-
-    private final SecurityProperties securityProperties;
-
-    private TokenStore tokenStore;
-
-    public ResourceServerConfiguration(final SecurityProperties securityProperties) {
-        this.securityProperties = securityProperties;
-    }
-
-    @Override
-    public void configure(final ResourceServerSecurityConfigurer resources) {
-        resources.tokenStore(tokenStore());
-    }
-
-    @Override
-    public void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests()
-                .antMatchers(HttpMethod.GET, ROOT_PATTERN).access("#oauth2.hasScope('read')")
-                .antMatchers(HttpMethod.POST, ROOT_PATTERN).access("#oauth2.hasScope('write')")
-                .antMatchers(HttpMethod.PATCH, ROOT_PATTERN).access("#oauth2.hasScope('write')")
-                .antMatchers(HttpMethod.PUT, ROOT_PATTERN).access("#oauth2.hasScope('write')")
-                .antMatchers(HttpMethod.DELETE, ROOT_PATTERN).access("#oauth2.hasScope('write')");
-    }
-
-    @Bean
-    public DefaultTokenServices tokenServices(final TokenStore tokenStore) {
-        DefaultTokenServices tokenServices = new DefaultTokenServices();
-        tokenServices.setTokenStore(tokenStore);
-        return tokenServices;
-    }
-
-    @Bean
-    public TokenStore tokenStore() {
-        if (tokenStore == null) {
-            tokenStore = new JwtTokenStore(jwtAccessTokenConverter());
-        }
-        return tokenStore;
-    }
-
-    @Bean
-    public JwtAccessTokenConverter jwtAccessTokenConverter() {
-        JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
-        converter.setVerifierKey(getPublicKeyAsString());
-        return converter;
-    }
-
-    private String getPublicKeyAsString() {
-        try {
-            return IOUtils.toString(securityProperties.getJwt().getPublicKey().getInputStream(), UTF_8);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
 }
 ```
 
-The important part of this configuration are the three `@Bean`s: `JwtAccessTokenConverter`, `TokenStore` and `DefaultTokenServices`:
-  - The `JwtAccessTokenConverter` uses the JKS `public key`.
-  - The `JwtTokenStore` uses the `JwtAccessTokenConverter` to read the tokens.
-  - The `DefaultTokenServices` uses the `JwtTokenStore` to persist the tokens.
+The `@EnableResourceServer` annotation, from the javadoc:
+
+>Convenient annotation for OAuth2 Resource Servers, enabling a Spring Security filter that authenticates requests via
+>an incoming OAuth2 token. Users should add this annotation and provide a <code>@Bean</code> of type
+>{@link ResourceServerConfigurer} (e.g. via {@link ResourceServerConfigurerAdapter}) that specifies the details of the
+>resource (URL paths and resource id). In order to use this filter you must {@link EnableWebSecurity}
+>somewhere in your application, either in the same place as you use this annotation, or somewhere else.
+
+Now that we have all the necessary code in place we need to configure a [RemoteTokenServices](https://docs.spring.io/spring-security/oauth/apidocs/org/springframework/security/oauth2/provider/token/RemoteTokenServices.html),
+lucky for us Spring provides a configuration property where we can set the url where the tokens can be translated to
+an `Authentication` object. 
+
+```yaml
+security:
+  oauth2:
+    resource:
+      user-info-uri: http://localhost:9001/profile/me
+```
