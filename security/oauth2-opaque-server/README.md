@@ -1,6 +1,8 @@
 OAuth2 Centralized Authorization with Opaque Tokens using Spring Boot 2
 ---
 
+>Published on http://blog.marcosbarbero.com/oauth2-centralized-authorization-opaque-jdbc-spring-boot2/
+
 This guide walks through the process to create a centralized authentication and authorization server with Spring Boot 2, 
 a demo resource server will also be provided.
 
