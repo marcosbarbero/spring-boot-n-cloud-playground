@@ -39,7 +39,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Bean
     public PasswordEncoder passwordEncoder() {
         if (passwordEncoder == null) {
-            passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+            passwordEncoder = DefaultPasswordEncoderFactories.createDelegatingPasswordEncoder();
         }
         return passwordEncoder;
     }
