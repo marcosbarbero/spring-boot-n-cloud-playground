@@ -9,10 +9,10 @@ import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DefaultPasswordEncoderFactories {
+class DefaultPasswordEncoderFactories {
 
     @SuppressWarnings("deprecation")
-    public static PasswordEncoder createDelegatingPasswordEncoder() {
+    static PasswordEncoder createDelegatingPasswordEncoder() {
         String encodingId = "bcrypt";
         Map<String, PasswordEncoder> encoders = new HashMap<>();
         encoders.put(encodingId, new BCryptPasswordEncoder());
