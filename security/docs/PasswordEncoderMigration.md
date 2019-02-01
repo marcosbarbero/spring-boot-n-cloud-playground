@@ -1,4 +1,4 @@
-Password Hash Mechanism migration with Spring
+Password Encoder Migration with Spring Security 5
 ---
 
 ## Overview

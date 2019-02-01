@@ -10,4 +10,4 @@ In this folder it's possible to find sample projects implementing application se
  - Opaque Token
    - [OAuth2 Server](./oauth2-opaque-server)
    - [Resource Server](./resource-server-opaque)
- - [DelegatingPasswordEncoder](docs/DelegatingPasswordEncoding.md)
+ - [DelegatingPasswordEncoder](docs/PasswordEncoderMigration.md)
