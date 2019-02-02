@@ -1,4 +1,4 @@
-Spring Boot & Cloud Playground
+Spring Boot & Cloud Playground [![Build Status](https://travis-ci.org/marcosbarbero/spring-boot-n-cloud-playground.svg?branch=master)](https://travis-ci.org/marcosbarbero/spring-boot-n-cloud-playground)
 ---
 
 >There's no place like https://start.spring.io/
