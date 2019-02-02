@@ -25,8 +25,10 @@ class DefaultPasswordEncoderFactories {
         encoders.put("SHA-1", new org.springframework.security.crypto.password.MessageDigestPasswordEncoder("SHA-1"));
         encoders.put("SHA-256", new org.springframework.security.crypto.password.MessageDigestPasswordEncoder("SHA-256"));
         encoders.put("sha256", new org.springframework.security.crypto.password.StandardPasswordEncoder());
-        encoders.put("bcrypt10", new BCryptPasswordEncoder(10));
 
-        return new DelegatingPasswordEncoder(encodingId, encoders);
+        DelegatingPasswordEncoder delegatingPasswordEncoder = new DelegatingPasswordEncoder(encodingId, encoders);
+        delegatingPasswordEncoder.setDefaultPasswordEncoderForMatches(new BCryptPasswordEncoder(10));
+        return delegatingPasswordEncoder;
     }
+
 }
