@@ -2,7 +2,7 @@ Password Encoder Migration with Spring Security 5
 ---
 
 Recently I was working in a project that used a custom `PasswordEncoder` and there was a requirement to migrate it to 
-[bcrypt](https://en.wikipedia.org/wiki/Bcrypt). The current passwords are stored all as `hash` which means it's not
+[bcrypt](https://en.wikipedia.org/wiki/Bcrypt). The current passwords are stored as `hash` which means it's not
 possible to revert it to the original `String` - at least not in an easy way.
 
 The challenge here was how to support both implementations, the old hash solution along with the new `bcrypt` 
