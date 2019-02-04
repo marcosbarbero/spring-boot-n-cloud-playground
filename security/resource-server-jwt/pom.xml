@@ -41,6 +41,13 @@
             <artifactId>commons-io</artifactId>
             <version>2.6</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.marcosbarbero.lab</groupId>
+            <artifactId>oauth2-test-support</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
