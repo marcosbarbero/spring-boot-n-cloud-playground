@@ -72,6 +72,7 @@
 		<module>security/oauth2-opaque-server</module>
 		<module>security/resource-server-jwt</module>
 		<module>security/resource-server-opaque</module>
+		<module>security/oauth2-test-support</module>
 	</modules>
 
 	<dependencies>
@@ -86,14 +87,5 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-		</plugins>
-	</build>
 
 </project>

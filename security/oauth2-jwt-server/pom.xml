@@ -24,6 +24,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.security.oauth.boot</groupId>
             <artifactId>spring-security-oauth2-autoconfigure</artifactId>
@@ -47,5 +48,14 @@
             <scope>runtime</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
