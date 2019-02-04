@@ -1,4 +1,4 @@
-package com.marcosbarbero.lab.test.context.security.jwt;
+package com.marcosbarbero.lab.test.context.security.oauth2.jwt;
 
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.security.core.Authentication;

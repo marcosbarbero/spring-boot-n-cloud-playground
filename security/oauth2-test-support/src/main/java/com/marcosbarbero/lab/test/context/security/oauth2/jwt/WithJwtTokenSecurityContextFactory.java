@@ -1,7 +1,7 @@
-package com.marcosbarbero.lab.test.context.security.jwt;
+package com.marcosbarbero.lab.test.context.security.oauth2.jwt;
 
-import com.marcosbarbero.lab.test.context.security.JwtPrincipalAuthenticationToken;
-import com.marcosbarbero.lab.test.context.security.TestContextHolder;
+import com.marcosbarbero.lab.test.context.security.oauth2.JwtPrincipalAuthenticationToken;
+import com.marcosbarbero.lab.test.context.security.oauth2.TestContextHolder;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;

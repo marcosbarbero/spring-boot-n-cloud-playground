@@ -1,0 +1,2 @@
+org.springframework.test.context.TestExecutionListener=\
+  com.marcosbarbero.lab.test.context.security.oauth2.TestContextTestExecutionListener

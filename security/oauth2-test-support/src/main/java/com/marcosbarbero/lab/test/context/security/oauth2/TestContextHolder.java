@@ -1,4 +1,4 @@
-package com.marcosbarbero.lab.test.context.security;
+package com.marcosbarbero.lab.test.context.security.oauth2;
 
 import org.springframework.lang.Nullable;
 import org.springframework.test.context.TestContext;

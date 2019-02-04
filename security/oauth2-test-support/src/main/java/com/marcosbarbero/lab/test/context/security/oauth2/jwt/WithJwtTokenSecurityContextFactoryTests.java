@@ -1,7 +1,7 @@
-package com.marcosbarbero.lab.test.context.security.jwt;
+package com.marcosbarbero.lab.test.context.security.oauth2.jwt;
 
 
-import com.marcosbarbero.lab.test.context.security.JwtPrincipalAuthenticationToken;
+import com.marcosbarbero.lab.test.context.security.oauth2.JwtPrincipalAuthenticationToken;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.PlainJWT;
 import org.apache.commons.lang3.exception.ExceptionUtils;
