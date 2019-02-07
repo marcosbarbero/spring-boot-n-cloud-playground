@@ -73,6 +73,7 @@
 		<module>security/resource-server-jwt</module>
 		<module>security/resource-server-opaque</module>
 		<module>security/oauth2-test-support</module>
+		<module>security/multiple-web-security-adapter</module>
 	</modules>
 
 	<dependencies>
