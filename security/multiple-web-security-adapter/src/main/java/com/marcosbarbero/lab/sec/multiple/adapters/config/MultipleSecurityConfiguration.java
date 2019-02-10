@@ -42,11 +42,11 @@ public class MultipleSecurityConfiguration {
 
         @Override
         protected void configure(final HttpSecurity http) throws Exception {
-            http
-                    .antMatcher("/api/**")
-                    .httpBasic()
-                    .and()
-                    .authorizeRequests().antMatchers("/api/**").authenticated();
+            http.antMatcher("/api/**")
+                .httpBasic()
+            .and()
+                .authorizeRequests()
+                .antMatchers("/api/**").authenticated();
         }
 
         @Override
@@ -60,17 +60,17 @@ public class MultipleSecurityConfiguration {
                     .passwordEncoder(passwordEncoder);
         }
 
-        @Bean
         @Override
+        @Bean("apiUserDetailsService")
         protected UserDetailsService userDetailsService() {
-            UserDetails user = new User("user",
+            UserDetails user = new User("apiuser",
                     passwordEncoder.encode("pass"),
-                    AuthorityUtils.createAuthorityList("USER"));
+                    AuthorityUtils.createAuthorityList("API_USER"));
             return new InMemoryUserDetailsManager(user);
         }
 
+        @Bean
         @Override
-        @Bean("apiAuthenticationManagerBean")
         public AuthenticationManager authenticationManagerBean() throws Exception {
             return super.authenticationManagerBean();
         }
@@ -79,21 +79,43 @@ public class MultipleSecurityConfiguration {
 
     @Configuration
     @Order(ORDER + 1)
-    static
-    class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
+    static class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
+
+        private final PasswordEncoder passwordEncoder;
+
+        WebSecurityConfiguration(final PasswordEncoder passwordEncoder) {
+            this.passwordEncoder = passwordEncoder;
+        }
+
         @Override
         protected void configure(final HttpSecurity http) throws Exception {
             http
                     .formLogin()
-                    .and()
+                    .successForwardUrl("/member/index.html")
+                .and()
                     .authorizeRequests().antMatchers("/member/**").authenticated()
-                    .and()
+                .and()
                     .authorizeRequests().antMatchers("/**").permitAll();
         }
 
         @Override
         public void configure(final WebSecurity web) {
             web.ignoring().antMatchers("/assets/**");
+        }
+
+        @Override
+        protected void configure(final AuthenticationManagerBuilder auth) throws Exception {
+            auth.userDetailsService(userDetailsService())
+                    .passwordEncoder(passwordEncoder);
+        }
+
+        @Override
+        @Bean("formUserDetailsService")
+        protected UserDetailsService userDetailsService() {
+            UserDetails user = new User("user",
+                    passwordEncoder.encode("pass"),
+                    AuthorityUtils.createAuthorityList("USER"));
+            return new InMemoryUserDetailsManager(user);
         }
     }
 

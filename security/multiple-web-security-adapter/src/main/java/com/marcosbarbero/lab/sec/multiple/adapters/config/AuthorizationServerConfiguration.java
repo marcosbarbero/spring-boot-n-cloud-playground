@@ -22,7 +22,7 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 
     private final DataSource dataSource;
     private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager apiAuthenticationManagerBean;
+    private final AuthenticationManager authenticationManager;
 
     private TokenStore tokenStore;
 
@@ -30,7 +30,7 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
                                             final AuthenticationManager apiAuthenticationManagerBean) {
         this.dataSource = dataSource;
         this.passwordEncoder = passwordEncoder;
-        this.apiAuthenticationManagerBean = apiAuthenticationManagerBean;
+        this.authenticationManager = apiAuthenticationManagerBean;
     }
 
     @Bean
@@ -47,7 +47,7 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
         tokenServices.setSupportRefreshToken(true);
         tokenServices.setTokenStore(tokenStore());
         tokenServices.setClientDetailsService(clientDetailsService);
-        tokenServices.setAuthenticationManager(apiAuthenticationManagerBean);
+        tokenServices.setAuthenticationManager(authenticationManager);
         return tokenServices;
     }
 
@@ -58,7 +58,7 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 
     @Override
     public void configure(final AuthorizationServerEndpointsConfigurer endpoints) {
-        endpoints.authenticationManager(apiAuthenticationManagerBean)
+        endpoints.authenticationManager(authenticationManager)
                 .tokenStore(tokenStore());
     }
 
