@@ -91,7 +91,7 @@ public class MultipleSecurityConfiguration {
         protected void configure(final HttpSecurity http) throws Exception {
             http
                     .formLogin()
-                    .successForwardUrl("/member/index.html")
+                    .successForwardUrl("/member/welcome")
                 .and()
                     .authorizeRequests().antMatchers("/member/**").authenticated()
                 .and()
